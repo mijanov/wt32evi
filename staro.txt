@@ -1,0 +1,294 @@
+/*
+void spustiCnf(void) {
+  char buf[300], url[100], imeFajla[100];
+  size_t uku;
+  
+  Serial.println(F("Zadajte url sa kojeg treba da se uzme fajl i pod kojim imenom da se sačuva."));
+  Serial.println(F("primjer: http://hub.hexco.biz/pcnf /config)"));
+
+  uku=Serial.readBytesUntil('\r', buf, 299);
+  if(uku) {
+    buf[uku]=0; // terminiranje stringa
+    sscanf(buf, " %s %s", url, imeFajla);
+    downloadFile(url, imeFajla);
+  }  
+}
+*/
+
+/*    
+    if(komanda == "saHTTPuFles") {
+      char url[100];
+      sprintf(url, "%s?jaSam=%s&komanda=dajMiFles", cnf.serverUrl, cnf.jaSam);
+      saHTTPuFles(url); // http://hub.hexco.biz?jaSam=udg1&verzijaFlesa=1
+    }
+    else if(komanda == "ip") prikaziMACiIP();
+    else if(komanda == "init") spustiCnf(); // prvo preuzimanje cnf sa servera
+    else if(komanda == "salji") posaljiServeru();
+    else if(komanda == "test") test();
+    else if(komanda == "proba") proba();
+    else if(komanda == "podesi") podesavanje();
+    else if(komanda == "udp") udpKome(); 
+    else if(komanda == "kart") {
+      char url[200];
+      sprintf(url, "%s/jaSam=%s&dajMiFajl=kartice", cnf.serverUrl, cnf.jaSam);
+      downloadFile(url, "/kartice");
+    }
+    else if(komanda == "cnf") {
+      char url[200];
+      strcpy(url, cnf.serverUrl);
+      strcat(url, "?jaSam="); strcat(url, cnf.jaSam); 
+      strcat(url, "&dajMiFajl=config");
+      downloadFile(url , "/config");
+    }
+    else if(komanda == "ls") {
+      Serial.println("\nListing files and sizes:");
+
+      File root = SPIFFS.open("/");
+      File file = root.openNextFile();
+
+      while (file) {
+        Serial.print("File: ");
+        Serial.print(file.name());
+        Serial.print(" - Size: ");
+        Serial.println(file.size());
+    
+        file = root.openNextFile();
+      }
+    }
+*/  
+
+
+
+ //  Serial.printf("\n nacin: %x", cnf.nacin);
+ 
+ 
+ 
+
+/*
+bool base64_encode(uint8_t * buf, uint32_t bufPrazno, uint32_t bufPuno){
+  // Pravi base64 tekst u buf preko binarnog niza radi uštede memorije
+  // Početak bafera je prazan i rezervisan za base64, a ostatak sadrži binarni niz
+  if(bufPrazno < bufPuno/3 + 3) return false; // provjera da li imamo dovoljno prostora
+
+  const char base64_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  uint8_t* bin= buf + bufPrazno; // ulazni binarni niz
+  uint16_t ui;
+  for(uint32_t i = 0; i< bufPuno/3; ++i) {
+    ui = *bin++; *buf++ = base64_table[ ui >> 2];
+    ui = ui << 8 | *bin++; *buf++ = base64_table[ ui >> 4 & 0x3f];
+    ui = ui << 8 | *bin++; *buf++ = base64_table[ ui >> 6 & 0x3f];
+    *buf++ = base64_table[ ui & 0x3f ];
+  }
+  char ostatak = bufPuno % 3;
+  if( ostatak) { // ostatak je 1 ili 2
+    ui = *bin++; *buf++ = base64_table[ ui >> 2]; // 1 oktet => 2ch
+    ui = ui << 8 | (--ostatak ? *bin++ : 0) ; *buf++ = base64_table[ ui >> 4 & 0x3f];
+    if(ostatak) *buf++ = base64_table[ ui << 2 & 0x3f]; // 2 okteta => 3ch
+    else *buf++ = '=';
+    *buf++ = '=';
+  }
+  return true;
+}
+
+uint8_t b64u8(char ch) {
+  if(ch == '+') return 62;
+  if(ch == '/') return 63;
+  if(ch <='Z') return ch-'A';
+  return ch - 'a' + 26;
+}
+
+void napraviMapu(uint8_t* mapa){
+  for(char i='A'; i<='Z'; ++i) mapa[i-43] = i-'A';
+  for(char i='a'; i<='z'; ++i) mapa[i-43] = i-'a'+ 26;
+  mapa['0'-43] = 52;
+  for(char i='1'; i<='9'; ++i) mapa[i-43] = i-'1'+ 53;
+  mapa['+'-43] = 62;
+  mapa['/'-43] = 63;
+}
+
+uint32_t base64_decode(char* buf){
+  // U istom memorijskom prostoru buf pravi binarne podatke na osnovu base64 teksta.
+  // vraća dužinu dekodirane poruke
+  
+//  uint8_t mapa[80];// Pravimo tabelu radi bržeg dekodiranja. Tabela počinje od '+'=43
+ // napraviMapu(mapa);
+
+  uint16_t ui;
+  uint8_t* bin = buf;
+  while(1) {
+    char ch = *buf++;
+        
+  }
+  if
+  uint32_t duzina = strlen(tekst64);
+  if(tekst
+  uint8_t* bin= buf + bufPrazno; // ulazni binarni niz
+  uint16_t ui;
+  for(uint32_t i = 0; i< bufPuno/3; ++i) {
+    ui = *bin++; *buf++ = base64_table[ ui >> 2];
+    ui = ui << 8 | *bin++; *buf++ = base64_table[ ui >> 4 & 0x3f];
+    ui = ui << 8 | *bin++; *buf++ = base64_table[ ui >> 6 & 0x3f];
+    *buf++ = base64_table[ ui & 0x3f ];
+  }
+  char ostatak = bufPuno % 3;
+  if( ostatak) { // ostatak je 1 ili 2
+    ui = *bin++; *buf++ = base64_table[ ui >> 2]; // 1 oktet => 2ch
+    ui = ui << 8 | (--ostatak ? *bin++ : 0) ; *buf++ = base64_table[ ui >> 4 & 0x3f];
+    if(ostatak) *buf++ = base64_table[ ui << 2 & 0x3f]; // 2 okteta => 3ch
+    else *buf++ = '=';
+    *buf++ = '=';
+  }
+  return true;
+}
+*/
+
+
+
+bool sacuvajPodatke(char* imeFajla, uint8_t* podaci, uint16_t duzina) {
+  File fajl = SPIFFS.open(imeFajla, "w");
+  if (!fajl) {
+    debug("Failed to open file for writing\n");
+    return false;
+  }
+  fajl.write(podaci, duzina);
+  fajl.close();
+  return true;
+}
+
+
+bool uzmiPodatke(char* imeFajla, uint8_t* podaci, uint16_t duzina) {
+  File fajl = SPIFFS.open(imeFajla, "r");
+  if (!fajl) {
+    debug("Failed to open file for reading\n");
+    // Return default config or take appropriate action if file doesn't exist
+    return false;
+  }
+  fajl.read(podaci, duzina);
+  fajl.close();
+  return true;
+}
+
+
+/*
+void posaljiUdp(char* url_port, char * poruka) {
+  IPAddress ip;
+  uint16_t port;
+
+  char * samoUrl= url_port;
+  char * samoPort = strchr(url, ':');
+  if(samoPort == NULL) port=80;
+  else {
+    *samoPort = 0;
+    ++samoPort;
+    port = atoi(samoPort);
+  }
+  WiFi.hostByName(samoUrl, ip);
+  Udp.writeTo( (uint8_t*) poruka, strlen(poruka), ip, port);
+}
+*/
+
+/*{
+  {"TP-LINK_B36B52"}, {""}, 30303, 0,
+  {"udg2"},
+  {0x33,0x5c,0x9d,0x8c,0xb7,0x38,0xc9,0x2d,0xeb,0x9b,0x82,0xda,0x8d,0x59,0x21,0x7b,0x9f,0x44,0x02,0x06,0x89,0x4f,0xbc,0x7e,0xf3,0xdb,0x5b,0x9b,0xd9,0x6f,0x6a,0x17}, // 32
+  {"http://hub.hexco.biz/ptest.php"},
+//  {"http://hub.hexco.biz/p-esp32.bin"}, // početne vrijednosti se kasnije mogu zamijeniti onima iz EEPROMa
+  UPISUJ_NEPOZNATE, // nepoznate kartice će se upisivati u događaje
+  600, // redovni interval javljanja serveru, oko 10 minuta
+  1,0,0,
+};*/
+
+
+/*
+void podesavanje(void){
+  char buf[100];
+  size_t uku;
+  Serial.setTimeout(30000); // 30 sekundi
+  
+  Serial.println("Za svaki ponuđeni parametar unesite novu vrijednost ili sa <ENTER> zadržite staru");
+  Serial.printf("\n način=%x ? ", cnf.nacin);
+  uku=Serial.readBytesUntil('\r', buf, 99); if(uku) { buf[uku]=0; sscanf (buf, " %hhu", &cnf.nacin); }
+  Serial.printf("%x\n pwm pin=%d ? ", cnf.nacin, pin);
+  uku=Serial.readBytesUntil('\r', buf, 99); if(uku) { buf[uku]=0; sscanf (buf, " %d", &pin); }
+  Serial.printf("%d\n pwm frekv=%d ? ", pin, frekv);
+  uku=Serial.readBytesUntil('\r', buf, 99); if(uku) { buf[uku]=0; sscanf (buf, " %d", &frekv); }
+  Serial.printf("%d\n pwm ispuna=%d ? ", frekv, ispuna);
+  uku=Serial.readBytesUntil('\r', buf, 99); if(uku) { buf[uku]=0; sscanf (buf, " %d", &ispuna); }
+  Serial.print(ispuna);
+
+  postaviPwm(pin, frekv, ispuna);
+}  
+*/
+
+
+/*
+void proba() {
+  char poruka[100] = {"Zdravo kako se osjećate danas?"};
+  char odgovor[300];
+  unsigned char sifrat[150];
+  
+
+  Serial.println("\nKey: ");
+  for (int i = 0; i < crypto_stream_chacha20_ietf_KEYBYTES; i++) {
+    Serial.printf(" %02x", cnf.kljuc[i]);
+  }
+
+  Serial.print("\nporuka: ");
+  Serial.println(poruka);
+  for (int i = 0; i < strlen(poruka); i++) {
+    Serial.printf(" %02x", poruka[i]);
+  }
+  unsigned long long sifratDuz;
+  if(cnf.nacin & KODIRAJ) sifratDuz = koder( cnf.jaSam, poruka, 0, sifrat);
+
+  Serial.printf("\nDužina poruke= %u, dužina šifrata=%u", strlen(poruka), sifratDuz);
+  
+  Serial.println("\n ciphertext: ");
+  for (int i = 0; i < sifratDuz; i++) {
+    Serial.printf(" %02x", sifrat[i]);
+  }
+
+  Serial.printf("\nMAX_RX_DUZ=%d\n", MAX_RX_DUZ);
+
+  WiFiClient client;
+  HTTPClient http;
+
+  http.begin(client, cnf.serverUrl);
+//  http.setFollowRedirects(HTTPC_FORCE_FOLLOW_REDIRECTS); // Enable automatic redirection following
+  http.addHeader("Content-Type", "application/octet-stream");
+  http.addHeader("Content-Length", String(sifratDuz));
+
+  Serial.println("\n[HTTP] POST... ");
+  int httpCode = http.POST(sifrat, sifratDuz); // start connection and send HTTP header and body
+
+  // httpCode will be negative on error
+  if (httpCode > 0) { // HTTP header has been send and Server response header has been handled
+    Serial.printf("\n response code: %d\n", httpCode);
+    if (httpCode == HTTP_CODE_OK) {
+
+      Stream* response = http.getStreamPtr();
+      response->setTimeout(1000);
+//      uint8_t buffer[MAX_RX_DUZ];
+      uint8_t buffer[500];
+      if(cnf.nacin & DEKODIRAJ) {
+        while (response->available()) {
+          size_t bytesRead = response->readBytes(buffer, MAX_RX_DUZ);
+          uint32_t porukaDuz = dekoder(cnf.jaSam, buffer, bytesRead, odgovor);
+          Serial.write( odgovor, bytesRead -28);
+          Serial.print("\nHEX:"); for (int i = 0; i < bytesRead-28; i++) Serial.printf(" %02x", odgovor[i]);
+        }
+      }
+      else {
+        size_t bytesRead = response->readBytes(buffer, 500);
+        Serial.write( buffer, bytesRead);
+        Serial.print("\nHEX:"); for (int i = 0; i < bytesRead; i++) Serial.printf(" %02x", buffer[i]);
+       
+      }
+      Serial.println("\n nema više");
+    }
+  } else Serial.printf("\n[HTTP] POST... failed, error: %d, %s\n", httpCode, http.errorToString(httpCode).c_str());
+  http.end();
+}
+*/
+
+
