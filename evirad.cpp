@@ -180,7 +180,7 @@ void obradiKarticu(char citac, volatile uint64_t* kartica64) {
   if(! nasao) {
     logNepoznate(kartica, citac);
     if( ! (cnf.nacin & UPISUJ_NEPOZNATE)) return; // ako ne treba da se upisuje u događaje, to je sve
-    idOsobe = 0; osoba[7]=0; // id i pravo
+    idOsobe = 1; osoba[7]=0; // id i pravo
     memcpy(osoba+8, "nepoznat", 8);
   } 
   else {
@@ -212,7 +212,7 @@ void obradiKarticu(char citac, volatile uint64_t* kartica64) {
 
 
 char * do100dogadjaja(char * p){
-  p += sprintf(p, ",\"dogadjaji\":\"");
+  p += sprintf(p, ",\"dgStart\":%d,\"dogadjaji\":\"", dgXrd);
   int16_t maxD = dgXwr - dgXrd;
   if (maxD < 0) maxD += MAX_DOGADJAJA;
   if(maxD > 100) maxD=100;
@@ -235,21 +235,48 @@ char ucitajKartice(void) {
 }
 
 
-char * izvuci( char * json, char * komanda) {
-  char * poc, * p = json;
+char * izvuci( char *json, char **kljuc, char **vredn) { // vadi iz JSON-a vrijednost varijable
+  char *p = json;
+  bool jeBroj = true;
 
-  p = strstr( p, komanda); if(p == NULL) return NULL; // nema komande
-  p = strchr( p, ':'); if(p == NULL) return NULL; //nema : iza komande
-  p = strchr( p, '"'); if(p == NULL) return NULL; //nema "
-  poc = ++p; // ovdje počinje tražena vrijednost
-  while( *p) {
-    if(*p == '"') break; // kraj
-    else if(*p == '\\') { if(* ++p == 0) return NULL;} // nezavršen escape
-    ++p;
+  // tražimo početak ključa
+  for( ; ; ++p) {
+    if(*p == 0) return NULL; // stigli smo do kraja json-a
+    if(*p == '"' || *p == '{' || *p ==',') continue;
+    if(*p > ' ') break;
   }
-  *p = 0; // terminiramo tekstualnu vrijednost
-  return poc;
-}
+  *kljuc = p;
+  
+  // tražimo kraj ključa
+  for( ; ; ++p) {
+    if(*p == 0) return NULL; // kraj jsona
+    if(*p == '"' || *p == ':' || *p <=' ') break;
+  }
+  *p++ = 0; // terminiramo ključ nulom
+  
+  // tražimo početak vrednosti
+  for( ; ; ++p) {
+    if(*p == 0) return NULL; // kraj jsona
+    if(*p == ':') continue;
+    if(*p == '"' || *p >' ') break;
+  }
+  if(*p == '"') { ++p; jeBroj = false; }
+  *vredn = p;
+
+  // tražimo kraj vrednosti  
+    for( ; ; ++p) {
+      if(*p == 0) return NULL;
+    if(jeBroj) { // ako je broj
+      if(*p <= ' ' || *p == ',') break;
+    }
+    else { // ako je tekst
+       if(*p == '\\') { if(* ++p == 0) return NULL;} // nezavršen escape
+       else if(*p == '"') break;
+    }
+  }
+  *p = 0;
+  return ++p;
+}   
   
 
 void javiSeServeru(void) {
@@ -268,14 +295,29 @@ void javiSeServeru(void) {
   sprintf(p, "}");
   Serial.println(poruka);
   posaljiPost(cnf.serverUrl, poruka, odgovor, MAX_ODGOVOR);
-  Serial.println(odgovor);
-  
-  // Ako dobijemo komandu, treba da je izvršimo. Inače, reagujemo na razliku u verziji programa, kartica ili configa.
-  // izvuci() izvlači vrijednost datog ključa tako što mijenja odgovor na tu vrijednost
-  char * vredn;
-  if( vredn = izvuci(odgovor, "komanda") ) uradi(vredn, strlen(vredn));
-  else if( vredn = izvuci(odgovor, "vPKC") ) strcpy(novoPKC, vredn);
+  { char str[200]; sprintf(str, "Primio sam:%s\n", odgovor); prikaz(str); }
+
+  char *json, * kljuc, * vredn;
+  json = odgovor;
+  while(json) {
+    json = izvuci(json, &kljuc, &vredn);
+    prikaz(kljuc);
+    if( ! strcmp(kljuc, "dgEnd")) {
+      uint16_t dgEnd;
+      sscanf(vredn, " %hu", &dgEnd);
+      if(dgEnd > MAX_DOGADJAJA) prikaz("greška, van opsega dg bafera");
+      else if(dgEnd == MAX_DOGADJAJA) dgXrd=0; // u krug
+      else dgXrd = dgEnd;
+    }
+    else if( ! strcmp(kljuc, "komanda")) { // izvrši komandu
+      uradi(vredn, strlen(vredn));
+    }
+    else if( ! strcmp(kljuc, "vPKC")) { 
+      char str[200]; sprintf(str, "\nDobio sam vPKC=%s\n", vredn); prikaz(str);
+      // !!! strcpy(novoPKC, vredn);
+    }
 //  else if( ...
+  }
   free(poruka);
   free(odgovor);
 }

@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-//#include "/home/zoran/snap/arduino/85/.arduino15/packages/esp32/hardware/esp32/2.0.10/libraries/WiFi/src/WiFi.h"
 #include <HTTPClient.h>
 #include <SPIFFS.h>
 
@@ -33,7 +32,7 @@
 #define UPISUJ_NEPOZNATE 4
 #define UDP_DEBUG 8 // 
 
-const char verzijaProg='2';
+const char verzijaProg='3';
 
 struct konfiguracija {
   char jaSam[20]; char kljuc[32]; uint8_t opcija; char verzijaKartica; char verzijaCnf; // 'lični podaci'

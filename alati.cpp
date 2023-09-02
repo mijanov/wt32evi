@@ -455,12 +455,15 @@ void helpAlati(void) {
 ip     # prikazuje mac i ip adrese
 ls     # lista fajlove u flešu 
 cat fajl         # prikazuje sadržaj fajla
+brisi fajl       # briše fajl
+mv fajl novoIme  # mijenja ime fajla
+mkdir folder     # pravi novi folder
+rmdir folder     # uklanja folder
 dump struc/fajl  # hex prikaz strukture ili fajla
 spusti url fajl  # spusta url u fajl
 digni fajl url   # PUT fajl na url
 uzmi fajl struc  # prebacuje podatke iz fajla u strukturu
 cuvaj struc fajl # čuva strukturu u fajl
-brisi fajl       # briše fajl
 otaprog url      # ubacuje program sa url u fleš
 noti naslov opis # šalje notifikaciju
 
@@ -494,21 +497,40 @@ bool uradiAlati(char * komanda) {
   if( ! strcmp(komanda, "ip")) prikaziMACiIP();
  
   else if( ! strcmp(komanda, "ls")) {
+    char str[200];
     File root = SPIFFS.open("/");
     File file = root.openNextFile();
     prikaz("\nListing files and sizes:\n");
     while (file) {
-      char str[200];
       sprintf(str, "/%s - %zu bytes\n", file.name(), file.size());
       prikaz(str);
       file = root.openNextFile();
     }
+    size_t uzeto=SPIFFS.usedBytes();
+    size_t ukupno=SPIFFS.totalBytes();
+    sprintf(str, "Used %u of %u total bytes. Free %u bytes.\n", uzeto, ukupno, ukupno-uzeto);
+    prikaz(str);
   }
  
   else if( ! strcmp(komanda, "cat")) prikaziFajl(prvi, 't');
+
+  else if( ! strcmp(komanda, "mv")) {
+    if(SPIFFS.rename(prvi, drugi)) prikaz("zamjenjeno\n");
+    else prikaz("ne može\n");
+  }
   
   else if( ! strcmp(komanda, "brisi")) {
     if (SPIFFS.remove(prvi)) prikaz("pobrisan\n");
+    else prikaz("ne može\n");
+  }
+
+  else if( ! strcmp(komanda, "mkdir")) {
+    if (SPIFFS.mkdir(prvi)) prikaz("napravljen\n");
+    else prikaz("ne može\n");
+  }
+
+  else if( ! strcmp(komanda, "rmdir")) {
+    if (SPIFFS.rmdir(prvi)) prikaz("uklonjen\n");
     else prikaz("ne može\n");
   }
 

@@ -13,7 +13,7 @@ void setup() {
   alati_setup();
   eviradSetup();
   fajl2mem( "/config",  (uint8_t*) &cnf, sizeof(cnf)); // /config prenosi u cnf
-  esp_task_wdt_init(13, true);
+  esp_task_wdt_init(60, true);
   esp_task_wdt_add(NULL); //add current thread to WDT watch
 }
 
